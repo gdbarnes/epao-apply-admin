@@ -14,6 +14,8 @@ const Title = styled.h3`
 
 const QuestionList = styled.div`
   padding: 8px;
+  background-color: ${props => (props.isDraggingOver ? "lightgrey" : "white")};
+  transition: background-color 0.3s ease;
 `;
 
 export default class Section extends React.Component {
@@ -22,10 +24,11 @@ export default class Section extends React.Component {
       <Container>
         <Title>{this.props.section.title}</Title>
         <Droppable droppableId={this.props.section.id}>
-          {provided => (
+          {(provided, snapshot) => (
             <QuestionList
               innerRef={provided.innerRef}
               {...provided.droppableProps}
+              isDraggingOver={snapshot.isDraggingOver}
             >
               {this.props.questions.map((question, index) => (
                 <Question key={question.id} question={question} index={index} />
