@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import initialData from "./initial-data";
 import Section from "./Section";
+import QuestionForm from "./QuestionForm";
 import Saving from "./Saving";
 
 const Container = styled.div`
@@ -19,11 +20,18 @@ const applyJourneyData =
 
 class InnerList extends React.PureComponent {
   render() {
-    const { section, questionMap, index } = this.props;
+    const { section, questionMap, index, buttonAction } = this.props;
     const questions = section.questionIds.map(
       questionId => questionMap[questionId]
     );
-    return <Section section={section} questions={questions} index={index} />;
+    return (
+      <Section
+        section={section}
+        questions={questions}
+        index={index}
+        buttonAction={buttonAction}
+      />
+    );
   }
 }
 
@@ -37,14 +45,51 @@ class App extends React.Component {
     saving: false
   };
 
+  handleAddQuestion = sectionId => {
+    const nextQuestionId = `question-${Object.keys(this.state.data.questions)
+      .length + 1}`;
+    console.log("nextQuestionId", nextQuestionId);
+
+    const newState = {
+      ...this.state, // spread current state
+      data: {
+        ...this.state.data, // spread current data
+        questions: {
+          ...this.state.data.questions, // spreead current questions
+          [nextQuestionId]: {
+            button: "Set me up",
+            content: "Email",
+            hint: "We'll send you an email to confirm your identity",
+            id: nextQuestionId
+          }
+        },
+        sections: {
+          ...this.state.data.sections,
+          [sectionId]: {
+            ...this.state.data.sections[sectionId],
+            questionIds: [
+              ...this.state.data.sections[sectionId].questionIds,
+              nextQuestionId
+            ]
+          }
+        }
+      },
+      saving: true
+    };
+
+    this.setState(newState);
+    this.updateServer(newState);
+    return;
+  };
+
   updateServer = newState => {
-    // console.log(newState);
     // mock re-order api call
     setTimeout(() => {
       localStorage.setItem("applyJourneyData", JSON.stringify(this.state.data));
       this.setState({
         saving: false
       });
+      console.log(newState);
     }, 1500);
   };
 
@@ -153,40 +198,44 @@ class App extends React.Component {
 
   render() {
     return (
-      <DragDropContext
-        // onDragStart
-        // onDragUpdate
-        // onDragEnd //required
-        onDragEnd={this.onDragEnd}
-      >
-        <Droppable
-          droppableId="all-sections"
-          direction="horizontal"
-          type="section"
+      <>
+        <DragDropContext
+          // onDragStart
+          // onDragUpdate
+          // onDragEnd //required
+          onDragEnd={this.onDragEnd}
         >
-          {provided => (
-            <Container
-              {...provided.droppableProps}
-              innerRef={provided.innerRef}
-            >
-              {this.state.data.sectionOrder.map((sectionId, index) => {
-                const section = this.state.data.sections[sectionId];
-                return (
-                  <InnerList
-                    key={sectionId}
-                    section={section}
-                    questionMap={this.state.data.questions}
-                    index={index}
-                    editContent={this.handleEditContent}
-                  />
-                );
-              })}
-              {provided.placeholder}
-            </Container>
-          )}
-        </Droppable>
-        {this.state.saving ? <Saving /> : null}
-      </DragDropContext>
+          <Droppable
+            droppableId="all-sections"
+            direction="horizontal"
+            type="section"
+          >
+            {provided => (
+              <Container
+                {...provided.droppableProps}
+                innerRef={provided.innerRef}
+              >
+                {this.state.data.sectionOrder.map((sectionId, index) => {
+                  const section = this.state.data.sections[sectionId];
+                  return (
+                    <InnerList
+                      key={sectionId}
+                      section={section}
+                      questionMap={this.state.data.questions}
+                      index={index}
+                      editContent={this.handleEditContent}
+                      buttonAction={() => this.handleAddQuestion(sectionId)}
+                    />
+                  );
+                })}
+                {provided.placeholder}
+              </Container>
+            )}
+          </Droppable>
+          {this.state.saving ? <Saving /> : null}
+        </DragDropContext>
+        <QuestionForm />
+      </>
     );
   }
 }

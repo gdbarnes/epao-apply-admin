@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import Question from "./Question";
+import Button from "./Button";
 
 const Container = styled.div`
   margin: 8px;
@@ -61,6 +62,13 @@ export default class Section extends React.Component {
                 </QuestionList>
               )}
             </Droppable>
+            <Button
+              buttonAction={this.props.buttonAction}
+              sectionId={this.props.section.id}
+              text="+ Add question"
+            >
+              + Add question
+            </Button>
           </Container>
         )}
       </Draggable>
