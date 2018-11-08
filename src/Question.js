@@ -1,19 +1,24 @@
 import React from "react";
 import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
+import Button from "./Button";
 
 const Container = styled.div`
   border: ${props =>
-    props.isDragging ? "1px solid lightgreen" : "1px solid lightgrey"};
-  padding: 8px;
+    props.isDragging ? "1px solid #e4ffcd" : "1px solid lightgrey"};
   margin-bottom: 8px;
   background-color: ${props =>
     props.isDragDisabled
       ? "lightgrey"
       : props.isDragging
-        ? "lightgreen"
-        : "white"};
+      ? "#e4ffcd"
+      : "white"};
   display: flex;
+  flex-direction: column;
+`;
+
+const QuestionContent = styled.div`
+  padding: 8px;
 `;
 
 // const Handle = styled.div`
@@ -25,6 +30,10 @@ const Container = styled.div`
 // `;
 
 export default class Question extends React.Component {
+  handleButtonClick = () => {
+    this.props.handleEditQuestion(this.props.question.id);
+  };
+
   render() {
     const isDragDisabled = this.props.question.id === "question-1";
     return (
@@ -45,7 +54,13 @@ export default class Question extends React.Component {
               {...provided.dragHandleProps}
               isDragging={snapshot.isDragging}
             /> */}
-            {this.props.question.content}
+            <QuestionContent>{this.props.question.content}</QuestionContent>
+            <Button
+              buttonAction={this.handleButtonClick}
+              propOnButton={this.props.propOnQuestion} // 'Passed down data' (sent all the way from line 249 on index.js (propOnInnerList="Passed down data"))
+              text="✎ Edit question"
+              value="✎ Edit question"
+            />
           </Container>
         )}
       </Draggable>

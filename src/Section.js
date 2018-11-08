@@ -19,8 +19,7 @@ const Title = styled.h3`
 
 const QuestionList = styled.div`
   padding: 8px;
-  background-color: ${props =>
-    props.isDraggingOver ? "lightgrey" : "inherit"};
+  background-color: ${props => (props.isDraggingOver ? "#e6eef7" : "inherit")};
   transition: background-color 0.3s ease;
   flex-grow: 1;
   min-height: 100px;
@@ -36,7 +35,14 @@ class InnerQuestions extends React.PureComponent {
 
   render() {
     return this.props.questions.map((question, index) => (
-      <Question key={question.id} question={question} index={index} />
+      <Question
+        propOnQuestion={this.props.propOnInnerQuestions}
+        // editQuestionButtonAction={this.props.editQuestionButtonAction}
+        handleEditQuestion={this.props.handleEditQuestion}
+        key={question.id}
+        question={question}
+        index={index}
+      />
     ));
   }
 }
@@ -57,14 +63,20 @@ export default class Section extends React.Component {
                   {...provided.droppableProps}
                   isDraggingOver={snapshot.isDraggingOver}
                 >
-                  <InnerQuestions questions={this.props.questions} />
+                  <InnerQuestions
+                    propOnInnerQuestions={this.props.propOnSection}
+                    questions={this.props.questions}
+                    // editQuestionButtonAction={
+                    //   this.props.editQuestionButtonAction
+                    // }
+                    handleEditQuestion={this.props.handleEditQuestion}
+                  />
                   {provided.placeholder}
                 </QuestionList>
               )}
             </Droppable>
             <Button
-              buttonAction={this.props.buttonAction}
-              sectionId={this.props.section.id}
+              buttonAction={this.props.addQuestionButtonAction}
               text="+ Add question"
             >
               + Add question

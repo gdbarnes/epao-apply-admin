@@ -20,7 +20,14 @@ const applyJourneyData =
 
 class InnerList extends React.PureComponent {
   render() {
-    const { section, questionMap, index, buttonAction } = this.props;
+    const {
+      section,
+      questionMap,
+      index,
+      addQuestionButtonAction,
+      // editQuestionButtonAction,
+      handleEditQuestion
+    } = this.props;
     const questions = section.questionIds.map(
       questionId => questionMap[questionId]
     );
@@ -29,7 +36,10 @@ class InnerList extends React.PureComponent {
         section={section}
         questions={questions}
         index={index}
-        buttonAction={buttonAction}
+        addQuestionButtonAction={addQuestionButtonAction}
+        handleEditQuestion={handleEditQuestion}
+        // editQuestionButtonAction={editQuestionButtonAction}
+        propOnSection={this.props.propOnInnerList}
       />
     );
   }
@@ -42,13 +52,32 @@ class InnerList extends React.PureComponent {
 class App extends React.Component {
   state = {
     data: applyJourneyData,
-    saving: false
+    saving: false,
+    clickedQuestionId: "",
+    showQuestionForm: false
+  };
+
+  handleEditQuestion = questionId => {
+    this.setState({
+      clickedQuestionId: questionId,
+      showQuestionForm: true
+    });
+
+    // TODO:
+    // Open the Question Form with the details for the question (using the questionId) and then
+    // add or edit that question
+  };
+
+  handleQuestionUpdate = updatedQuestion => {
+    console.log("clickedQuestionId", this.state.clickedQuestionId);
+    console.log("updated", updatedQuestion);
   };
 
   handleAddQuestion = sectionId => {
+    console.log("sectionId", sectionId);
+
     const nextQuestionId = `question-${Object.keys(this.state.data.questions)
       .length + 1}`;
-    console.log("nextQuestionId", nextQuestionId);
 
     const newState = {
       ...this.state, // spread current state
@@ -94,7 +123,6 @@ class App extends React.Component {
   };
 
   onDragEnd = result => {
-    // console.log(result);
     const { destination, source, draggableId, type } = result;
 
     // If dropped outside droppable zone (destination === null)
@@ -223,8 +251,14 @@ class App extends React.Component {
                       section={section}
                       questionMap={this.state.data.questions}
                       index={index}
-                      editContent={this.handleEditContent}
-                      buttonAction={() => this.handleAddQuestion(sectionId)}
+                      addQuestionButtonAction={() =>
+                        this.handleAddQuestion(sectionId)
+                      }
+                      handleEditQuestion={this.handleEditQuestion}
+                      // editQuestionButtonAction={event =>
+                      //   this.handleEditQuestion()
+                      // }
+                      propOnInnerList="Passed down data"
                     />
                   );
                 })}
@@ -234,7 +268,9 @@ class App extends React.Component {
           </Droppable>
           {this.state.saving ? <Saving /> : null}
         </DragDropContext>
-        <QuestionForm />
+        {this.state.showQuestionForm && (
+          <QuestionForm onQuestionFormSubmit={this.handleQuestionUpdate} />
+        )}
       </>
     );
   }
